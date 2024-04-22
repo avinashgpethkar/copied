@@ -28,14 +28,14 @@ paths:
               oneOf:
                 - $ref: '#/components/schemas/NEW'
                 - $ref: '#/components/schemas/CHANGE'
-                - $ref: '#/components/schemas/NEW'
-              # Optional mapping of `type` values to models
+                - $ref: '#/components/schemas/CANCEL'
+              # Optional mapping of `transCode` values to models
               discriminator:
-                propertyName: messageHeader/transCode
+                propertyName: transCode
                 mapping:
-                  click: '#/components/schemas/ClickEvent'
-                  open:  '#/components/schemas/OpenEvent'
-                  sent:  '#/components/schemas/SentEvent'                
+                  NEW: '#/components/schemas/NEW'
+                  CHANGE:  '#/components/schemas/CHANGE'
+                  CANCEL:  '#/components/schemas/CANCEL'
         required: true
       responses:
         '200':
@@ -76,7 +76,8 @@ components:
               properties: 
                 msgId: 
                   type: number
-                  maxLength: 16
+                  minimum: 1
+                  maximum: 9999999999999999
                   example: 0000000027651234
                 msgType: 
                   type: string
@@ -88,7 +89,7 @@ components:
                     - NEW
                     - CHANGE
                     - CANCEL
-                  example: NEW
+                  example: CANCEL
                 sender: 
                   type: string
                   enum: [EWM_KER1]
@@ -116,19 +117,7 @@ components:
                       type: array
                       items: 
                         type: object
-                        properties: 
-                          0: 
-                            type: string
-                            example: L
-                          1: 
-                            type: string
-                            example: L
-                          2: 
-                            type: string
-                            example: I
-                      example: [
-                        LLI
-                      ]
+                      example: ["LLI", "DFU"]
                 pickVerification: 
                   type: boolean
                 packLane: 
@@ -207,7 +196,8 @@ components:
               properties: 
                 msgId: 
                   type: number
-                  maxLength: 16
+                  minimum: 1
+                  maximum: 9999999999999999
                   example: 0000000027651234
                 msgType: 
                   type: string
@@ -242,24 +232,14 @@ components:
                   example: 700001057835
                 VAS: 
                   type: object
+                  required: 
+                    - Activity
                   properties: 
                     Activity: 
                       type: array
                       items: 
-                        type: object
-                        properties: 
-                          0: 
-                            type: string
-                            example: L
-                          1: 
-                            type: string
-                            example: L
-                          2: 
-                            type: string
-                            example: I
-                      example: [
-                        LLI
-                      ]
+                        type: string
+                      example: ["LLI", "DFU"]
                 pickVerification: 
                   type: boolean
                 packLane: 
@@ -316,3 +296,59 @@ components:
                       quantityOrdered: 
                         type: number
                         example: 6
+
+    CANCEL: 
+      type: object
+      properties: 
+        HUMasterMessageRequest: 
+          type: object
+          required:
+            - messageHeader
+            - handlingunit
+          properties: 
+            messageHeader: 
+              type: object
+              required:
+                - msgId
+                - msgType
+                - transCode
+                - sender
+                - receiver
+                - dateTimeSent
+              properties: 
+                msgId: 
+                  type: number
+                  minimum: 1
+                  maximum: 9999999999999999
+                  example: 0000000027651234
+                msgType: 
+                  type: string
+                  enum: [HUMaster]
+                  example: HUMaster
+                transCode: 
+                  type: string
+                  enum:
+                    - NEW
+                    - CHANGE
+                    - CANCEL
+                  example: NEW
+                sender: 
+                  type: string
+                  enum: [EWM_KER1]
+                  example: EWM_KER1
+                receiver: 
+                  type: string
+                  enum: [Vanderlande_KER1]
+                  example: Vanderlande_KER1
+                dateTimeSent: 
+                  type: string
+                  example: 2021-12-20T14:48:58.214+01:00
+                  description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+            handlingunit: 
+              type: object
+              required:
+                - HUId
+              properties: 
+                HUId: 
+                  type: number
+                  example: 700001057835
