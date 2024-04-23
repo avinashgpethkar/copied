@@ -62,38 +62,6 @@ paths:
 
 components:
   schemas:
-    MessageHeader:
-      type: object
-      properties:
-        msgId: 
-          type: number
-          minimum: 1
-          maximum: 9999999999999999
-          example: 27651234
-        msgType: 
-          type: string
-          enum: [HUMaster]
-          example: HUMaster
-        transCode: 
-          type: string
-          enum:
-            - NEW
-            - CHANGE
-            - CANCEL
-          example: CANCEL
-        sender: 
-          type: string
-          enum: [EWM_KER1]
-          example: EWM_KER1
-        receiver: 
-          type: string
-          enum: [Vanderlande_KER1]
-          example: Vanderlande_KER1
-        dateTimeSent: 
-          type: string
-          example: 2021-12-20T14:48:58.214+01:00
-          description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
-
     NEW: 
       type: object
       properties: 
