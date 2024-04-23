@@ -96,9 +96,9 @@ components:
           discriminator:
             propertyName: transCode
             mapping:
-              NEW: NEW_AND_CHANGE
-              CHANGE: NEW_AND_CHANGE
-              CANCEL: CANCEL
+              NEW: '#/components/schemas/NEW_AND_CHANGE'
+              CHANGE: '#/components/schemas/NEW_AND_CHANGE'
+              CANCEL: '#/components/schemas/CANCEL'
            
     NEW_AND_CHANGE: 
       allOf:
