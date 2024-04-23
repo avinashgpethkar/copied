@@ -62,17 +62,6 @@ paths:
 
 components:
   schemas:
-    RequestBody:
-      type: object
-      properties:
-        HUMasterMessageRequest:
-          type: object
-          properties:
-            messageHeader:
-              $ref: '#/components/schemas/MessageHeader'
-            handlingunit:
-              $ref: '#/components/schemas/MessageHeader'
-
     MessageHeader:
       type: object
       properties:
