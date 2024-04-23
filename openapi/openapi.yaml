@@ -182,7 +182,9 @@ components:
                     example: 6
 
     CANCEL_HU: 
-      type: object
+      allOf:
+        - $ref: '#/components/schemas/messageHeader'
+        - type: object   
       properties:
         handlingunit: 
           type: object
