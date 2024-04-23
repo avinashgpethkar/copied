@@ -52,12 +52,6 @@ paths:
 
 components:
   schemas:
-    HUMasterMessageRequest:
-      type: object
-      properties:
-        MessageHeader:                
-          $ref: '#/components/schemas/messageHeader'       
-
     messageHeader: 
           type: object
           properties:
