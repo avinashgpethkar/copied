@@ -25,7 +25,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CANCEL'
+              $ref: '#/components/schemas/HUMasterMessageRequest'
                                 
         required: true
       responses:
@@ -49,6 +49,12 @@ paths:
 
 components:
   schemas:
+    HUMasterMessageRequest:
+      type: object
+      properties:
+        messageHeader:
+          $ref: '#/components/schemas/CANCEL'
+
     messageHeader: 
           type: object
           required:
