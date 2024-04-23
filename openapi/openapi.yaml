@@ -34,7 +34,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CANCEL'          
+                $ref: '#/components/schemas/HUMasterMessageRequest'          
 
         '400':
           description: Invalid input
@@ -52,8 +52,11 @@ components:
     HUMasterMessageRequest:
       type: object
       properties:
-        messageHeader:
-          $ref: '#/components/schemas/CANCEL'
+        HUMasterMessageRequest:
+          type: object
+          properties:
+            messageHeader:              
+              $ref: '#/components/schemas/messageHeader'               
 
     messageHeader: 
           type: object
@@ -96,14 +99,12 @@ components:
           discriminator:
             propertyName: transCode
             mapping:
-              NEW: '#/components/schemas/NEW_AND_CHANGE'
-              CHANGE: '#/components/schemas/NEW_AND_CHANGE'
-              CANCEL: '#/components/schemas/CANCEL'
+              NEW: '#/components/schemas/NEW_AND_CHANGE_HU'
+              CHANGE: '#/components/schemas/NEW_AND_CHANGE_HU'
+              CANCEL: '#/components/schemas/CANCEL_HU'
            
-    NEW_AND_CHANGE: 
-      allOf:
-      - $ref: '#/components/schemas/messageHeader'
-      - type: object
+    NEW_AND_CHANGE_HU: 
+      type: object
       properties: 
        handlingunit: 
           type: object
@@ -178,10 +179,8 @@ components:
                     type: number
                     example: 6
 
-    CANCEL: 
-      allOf:
-      - $ref: '#/components/schemas/messageHeader'
-      - type: object
+    CANCEL_HU: 
+      type: object
       properties:
         handlingunit: 
           type: object
