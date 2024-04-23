@@ -27,8 +27,8 @@ paths:
             schema:
               type: object
               properties:
-                HUMasterMessageRequest:                            
-                      $ref: '#/components/schemas/messageHeader'          
+                HUMasterMessageRequest:            
+                      $ref: '#/components/schemas/HUMasterMessageRequest'          
                                 
         required: true
       responses:
@@ -52,53 +52,56 @@ paths:
 
 components:
   schemas:
+    HUMasterMessageRequest:
+      type: object
+      properties:
+        MessageHeader:                
+          $ref: '#/components/schemas/messageHeader'       
+
     messageHeader: 
           type: object
-          properties:
-            messageHeader:
-              type: object
-              required:
-                - msgId
-                - msgType
-                - transCode
-                - sender
-                - receiver
-                - dateTimeSent
-              properties: 
-                msgId: 
-                  type: number
-                  minimum: 1
-                  maximum: 9999999999999999
-                  example: 27651234
-                msgType: 
-                  type: string
-                  enum: [HUMaster]
-                  example: HUMaster
-                transCode: 
-                  type: string
-                  enum:
-                    - NEW
-                    - CHANGE
-                    - CANCEL
-                  example: NEW
-                sender: 
-                  type: string
-                  enum: [EWM_KER1]
-                  example: EWM_KER1
-                receiver: 
-                  type: string
-                  enum: [Vanderlande_KER1]
-                  example: Vanderlande_KER1
-                dateTimeSent: 
-                  type: string
-                  example: 2021-12-20T14:48:58.214+01:00
-                  description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
-              discriminator:
-                propertyName: transCode
-                mapping:
-                  NEW: '#/components/schemas/NEW_AND_CHANGE'
-                  CHANGE: '#/components/schemas/NEW_AND_CHANGE'
-                  CANCEL: '#/components/schemas/CANCEL'
+          required:
+            - msgId
+            - msgType
+            - transCode
+            - sender
+            - receiver
+            - dateTimeSent
+          properties: 
+            msgId: 
+              type: number
+              minimum: 1
+              maximum: 9999999999999999
+              example: 27651234
+            msgType: 
+              type: string
+              enum: [HUMaster]
+              example: HUMaster
+            transCode: 
+              type: string
+              enum:
+                - NEW
+                - CHANGE
+                - CANCEL
+              example: NEW
+            sender: 
+              type: string
+              enum: [EWM_KER1]
+              example: EWM_KER1
+            receiver: 
+              type: string
+              enum: [Vanderlande_KER1]
+              example: Vanderlande_KER1
+            dateTimeSent: 
+              type: string
+              example: 2021-12-20T14:48:58.214+01:00
+              description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+          discriminator:
+            propertyName: transCode
+            mapping:
+              NEW: '#/components/schemas/NEW_AND_CHANGE'
+              CHANGE: '#/components/schemas/NEW_AND_CHANGE'
+              CANCEL: '#/components/schemas/CANCEL'
            
     NEW_AND_CHANGE: 
       allOf:
