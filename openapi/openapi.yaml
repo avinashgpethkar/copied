@@ -35,7 +35,7 @@ paths:
                 mapping:
                   NEW: '#/components/schemas/NEW'
                   CHANGE:  '#/components/schemas/CHANGE'
-                  CANCEL:  '#/components/schemas/CANCEL'
+                  CANCEL:  '#/components/schemas/CANCEL'                
         required: true
       responses:
         '200':
@@ -49,7 +49,10 @@ paths:
           description: Invalid input
         '422':
           description: Validation exception
-
+      security:
+        - petstore_auth:
+            - write:pets
+            - read:pets
             
 
 
@@ -78,7 +81,7 @@ components:
                   type: number
                   minimum: 1
                   maximum: 9999999999999999
-                  example: 0000000027651234
+                  example: 27651234
                 msgType: 
                   type: string
                   enum: [HUMaster]
@@ -198,7 +201,7 @@ components:
                   type: number
                   minimum: 1
                   maximum: 9999999999999999
-                  example: 0000000027651234
+                  example: 027651234
                 msgType: 
                   type: string
                   enum: [HUMaster]
@@ -232,13 +235,11 @@ components:
                   example: 700001057835
                 VAS: 
                   type: object
-                  required: 
-                    - Activity
                   properties: 
                     Activity: 
                       type: array
                       items: 
-                        type: string
+                        type: object
                       example: ["LLI", "DFU"]
                 pickVerification: 
                   type: boolean
@@ -320,7 +321,7 @@ components:
                   type: number
                   minimum: 1
                   maximum: 9999999999999999
-                  example: 0000000027651234
+                  example: 27651234
                 msgType: 
                   type: string
                   enum: [HUMaster]
@@ -352,3 +353,16 @@ components:
                 HUId: 
                   type: number
                   example: 700001057835
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
