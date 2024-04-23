@@ -28,17 +28,10 @@ paths:
               type: object
               properties:
                 HUMasterMessageRequest:
-                  oneOf:
-                    - $ref: '#/components/schemas/NEW'
-                    - $ref: '#/components/schemas/CHANGE'
-                    - $ref: '#/components/schemas/CANCEL'
-                  # Optional mapping of `transCode` values to models
-                  discriminator:
-                    propertyName: transCode
-                    mapping:
-                      NEW: '#/components/schemas/NEW'
-                      CHANGE:  '#/components/schemas/CHANGE'
-                      CANCEL:  '#/components/schemas/CANCEL'                       
+                  type: object
+                  properties:
+                    MessageHeader:                
+                      $ref: '#/components/schemas/messageHeader'          
                                 
         required: true
       responses:
@@ -47,7 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NEW'          
+                $ref: '#/components/schemas/NEW_AND_CHANGE'          
 
         '400':
           description: Invalid input
@@ -62,10 +55,7 @@ paths:
 
 components:
   schemas:
-    NEW: 
-      type: object
-      properties: 
-        messageHeader: 
+    messageHeader: 
           type: object
           required:
             - msgId
@@ -88,6 +78,8 @@ components:
               type: string
               enum:
                 - NEW
+                - CHANGE
+                - CANCEL
               example: NEW
             sender: 
               type: string
@@ -101,119 +93,19 @@ components:
               type: string
               example: 2021-12-20T14:48:58.214+01:00
               description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
-        handlingunit: 
-          type: object
-          required:
-            - HUId
-          properties: 
-            HUId: 
-              type: number
-              example: 700001057835
-            VAS: 
-              type: object
-              properties: 
-                Activity: 
-                  type: array
-                  items: 
-                    type: object
-                  example: ["LLI", "DFU"]
-            pickVerification: 
-              type: boolean
-            packLane: 
-              type: string
-              example: MHU
-            delivery: 
-              type: number
-              example: 4312500640
-            dispatchDate: 
-              type: string
-              format: date-time
-              example: 2021-12-20T14:48:58.214+01:00
-            shipToCountry: 
-              type: string
-              example: DE
-            routeCode: 
-              type: string
-              example: ZTNTEC
-            carrier: 
-              type: string
-              example: DHL parcel
-            serviceType: 
-              type: string
-              example: Pre8
-            cutOff: 
-              type: string
-              example: 2021-12-20T18:48:00
-            boxLength: 
-              type: number
-              example: 255
-            boxWidth: 
-              type: number
-              example: 234
-            boxHeight: 
-              type: number
-              example: 47
-            Pack-SizeBoxOfBoxes: 
-              type: string
-              example: 1 of 1
-            totalBoxWeight: 
-              type: number
-              example: 3000
-            orderLines: 
-              type: array
-              items: 
-                type: object
-                properties: 
-                  pickArea: 
-                    type: string
-                    example: P03
-                  numberOfLines: 
-                    type: number
-                    example: 3
-                  quantityOrdered: 
-                    type: number
-                    example: 6
-
-    CHANGE: 
-      type: object
+          discriminator:
+            propertyName: transCode
+            mapping:
+              NEW: NEW_AND_CHANGE
+              CHANGE: NEW_AND_CHANGE
+              CANCEL: CANCEL
+           
+    NEW_AND_CHANGE: 
+      allOf:
+      - $ref: '#/components/schemas/messageHeader'
+      - type: object
       properties: 
-        messageHeader: 
-          type: object
-          required:
-            - msgId
-            - msgType
-            - transCode
-            - sender
-            - receiver
-            - dateTimeSent
-          properties: 
-            msgId: 
-              type: number
-              minimum: 1
-              maximum: 9999999999999999
-              example: 027651234
-            msgType: 
-              type: string
-              enum: [HUMaster]
-              example: HUMaster
-            transCode: 
-              type: string
-              enum:
-                - CHANGE
-              example: CHANGE
-            sender: 
-              type: string
-              enum: [EWM_KER1]
-              example: EWM_KER1
-            receiver: 
-              type: string
-              enum: [Vanderlande_KER1]
-              example: Vanderlande_KER1
-            dateTimeSent: 
-              type: string
-              example: 2021-12-20T14:48:58.214+01:00
-              description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
-        handlingunit: 
+       handlingunit: 
           type: object
           required:
             - HUId
@@ -287,44 +179,10 @@ components:
                     example: 6
 
     CANCEL: 
-      type: object
-      properties: 
-        messageHeader: 
-          type: object
-          required:
-            - msgId
-            - msgType
-            - transCode
-            - sender
-            - receiver
-            - dateTimeSent
-          properties: 
-            msgId: 
-              type: number
-              minimum: 1
-              maximum: 9999999999999999
-              example: 27651234
-            msgType: 
-              type: string
-              enum: [HUMaster]
-              example: HUMaster
-            transCode: 
-              type: string
-              enum:
-                - CANCEL
-              example: CANCEL
-            sender: 
-              type: string
-              enum: [EWM_KER1]
-              example: EWM_KER1
-            receiver: 
-              type: string
-              enum: [Vanderlande_KER1]
-              example: Vanderlande_KER1
-            dateTimeSent: 
-              type: string
-              example: 2021-12-20T14:48:58.214+01:00
-              description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+      allOf:
+      - $ref: '#/components/schemas/messageHeader'
+      - type: object
+      properties:
         handlingunit: 
           type: object
           required:
