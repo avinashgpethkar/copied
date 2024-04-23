@@ -99,7 +99,10 @@ components:
            
     NEW_AND_CHANGE: 
       allOf:
-      - $ref: '#/components/schemas/messageHeader'
+      - type: object
+        properties: 
+          messageHeader:
+            $ref: '#/components/schemas/messageHeader'
       - type: object
       properties: 
        handlingunit: 
