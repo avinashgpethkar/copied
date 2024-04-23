@@ -37,7 +37,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NEW_AND_CHANGE'          
+                $ref: '#/components/schemas/CANCEL'          
 
         '400':
           description: Invalid input
@@ -99,10 +99,7 @@ components:
            
     NEW_AND_CHANGE: 
       allOf:
-      - type: object
-        properties: 
-          messageHeader:
-            $ref: '#/components/schemas/messageHeader'
+      - $ref: '#/components/schemas/messageHeader'
       - type: object
       properties: 
        handlingunit: 
