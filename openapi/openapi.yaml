@@ -25,10 +25,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                HUMasterMessageRequest:      
-                      $ref: '#/components/schemas/NEW_AND_CHANGE'          
+              $ref: '#/components/schemas/CANCEL'
                                 
         required: true
       responses:
