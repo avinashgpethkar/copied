@@ -56,7 +56,9 @@ components:
           type: object
           properties:
             messageHeader:              
-              $ref: '#/components/schemas/messageHeader'               
+              $ref: '#/components/schemas/messageHeader'
+            handlingunit:
+               $ref: '#/components/schemas/handlingunit_new_change'              
 
     messageHeader: 
           type: object
@@ -71,12 +73,16 @@ components:
             msgId: 
               type: number
               minimum: 1
-              maximum: 9999999999999999
+              maximum: 99999999999999999999
               example: 27651234
+              description: Unique number of the message. Incremental number. Can be up to 20 digits, so no need to recycle.
             msgType: 
               type: string
+              minLength: 1
+              maxLength: 20
               enum: [HUMaster]
               example: HUMaster
+              description: Describes the type of interface (always the same for Vanderlande)
             transCode: 
               type: string
               enum:
@@ -84,34 +90,51 @@ components:
                 - CHANGE
                 - CANCEL
               example: NEW
+              description: This field describes the type of interface to the conveyor - NEW- new box being announced to the MFC CHANGE- update of a box that was previously announced CANCEL- all destinations for this box can be cancelled as the box will not be created or has been removed from the conveyor.              *handlingunit Schema should change based on the transcode value. For NEW and CHANGE transcodes, handlingunit_new_change' schema should be used. For CANCEL transcode, 'handlingunit_cancel' schema should be used.
             sender: 
               type: string
               enum: [EWM_KER1]
               example: EWM_KER1
+              description: Indicates the system that is sending the information
             receiver: 
               type: string
               enum: [Vanderlande_KER1]
               example: Vanderlande_KER1
+              description: Indicates the system that is supposed to receive the information
             dateTimeSent: 
               type: string
               example: 2021-12-20T14:48:58.214+01:00
-              description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” component means one hour ahead of UTC (Coordinated Universal Time). https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+              description: The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” in example indicates timezone offset i.e. means one hour ahead of UTC (Coordinated Universal Time) in this example. https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
           discriminator:
             propertyName: transCode
             mapping:
-              NEW: '#/components/schemas/NEW_AND_CHANGE_HU'
-              CHANGE: '#/components/schemas/NEW_AND_CHANGE_HU'
-              CANCEL: '#/components/schemas/CANCEL_HU'
+              NEW: '#/components/schemas/handlingunit_new_change'
+              CHANGE: '#/components/schemas/handlingunit_new_change'
+              CANCEL: '#/components/schemas/handlingunit_cancel'
            
-    NEW_AND_CHANGE_HU: 
-      allOf:
-        - $ref: '#/components/schemas/messageHeader'
-        - type: object
+    handlingunit_new_change: 
+      type: object
       properties: 
        handlingunit: 
           type: object
           required:
             - HUId
+            - VAS
+            - pickVerification
+            - packLane
+            - delivery
+            - dispatchDate
+            - shipToCountry
+            - routeCode
+            - carrier
+            - serviceType
+            - cutOff
+            - boxLength
+            - boxWidth
+            - boxHeight
+            - Pack-SizeBoxOfBoxes
+            - totalBoxWeight
+            - orderLines
           properties: 
             HUId: 
               type: number
@@ -181,10 +204,8 @@ components:
                     type: number
                     example: 6
 
-    CANCEL_HU: 
-      allOf:
-        - $ref: '#/components/schemas/messageHeader'
-        - type: object   
+    handlingunit_cancel: 
+      type: object   
       properties:
         handlingunit: 
           type: object
