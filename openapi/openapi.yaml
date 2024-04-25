@@ -319,14 +319,11 @@ components:
     responseMessage:
       type: object
       properties:
-        responseMessage:
-          type: object
-          properties:
-            message:
-              type: string
-              maxLength: 100
-              description: response message. Mentions success or any validation failure reason along with the field name e.g. Error- Validation failed- dateTimeSent
-              example: Success - Accepted or Error- Validation failed- dateTimeSent, PackSizeBoxOfBoxes
+        message:
+          type: string
+          maxLength: 100
+          description: response message. Mentions success or any validation failure reason along with the field name e.g. Error- Validation failed- dateTimeSent
+          example: Success - Accepted or Error- Validation failed- dateTimeSent, PackSizeBoxOfBoxes
 
   securitySchemes:
     api_key:
