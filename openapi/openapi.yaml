@@ -13,7 +13,7 @@ tags:
   - name: HU Master
     description: API to post HU Master data from BSC EWM to Vanderlande
 paths:
-  /bsc/HUMaster:
+  /bsc/hu_master:
     post:
       tags:
         - HU Master
@@ -34,16 +34,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/handlingunit_cancel'          
+                $ref: '#/components/schemas/HUMasterMessageResponse'          
 
         '400':
           description: Invalid input
         '422':
           description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HUMasterMessageResponse'
       security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
+        - OAuth2:
+            - write
+            - read
             
 
 
@@ -58,7 +62,9 @@ components:
             messageHeader:              
               $ref: '#/components/schemas/messageHeader'
             handlingunit:
-               $ref: '#/components/schemas/handlingunit_new_change'              
+              oneOf:
+               - $ref: '#/components/schemas/handlingunit_new_change'
+               - $ref: '#/components/schemas/handlingunit_cancel'              
 
     messageHeader: 
           type: object
@@ -71,41 +77,45 @@ components:
             - dateTimeSent
           properties: 
             msgId: 
-              type: number
-              minimum: 1
-              maximum: 99999999999999999999
-              example: 27651234
-              description: Unique number of the message. Incremental number. Can be up to 20 digits, so no need to recycle.
-            msgType: 
               type: string
               minLength: 1
               maxLength: 20
+              example: '27651234'
+              description: Unique ID of the message. Incremental number for now. Can be up to 20 characters, so no need to recycle. May change to alpha-numeric in future
+            msgType: 
+              type: string
+              minLength: 8
+              maxLength: 8
               enum: [HUMaster]
               example: HUMaster
               description: Describes the type of interface (always the same for Vanderlande)
             transCode: 
               type: string
+              minLength: 3
+              maxLength: 6
               enum:
                 - NEW
                 - CHANGE
                 - CANCEL
               example: NEW
-              description: This field describes the type of interface to the conveyor - NEW- new box being announced to the MFC CHANGE- update of a box that was previously announced CANCEL- all destinations for this box can be cancelled as the box will not be created or has been removed from the conveyor.              *handlingunit Schema should change based on the transcode value. For NEW and CHANGE transcodes, handlingunit_new_change' schema should be used. For CANCEL transcode, 'handlingunit_cancel' schema should be used.
+              description: This field describes the type of interface to the conveyor. NEW- new box being announced to the MFC. CHANGE- update of a box that was previously announced. CANCEL- all destinations for this box can be cancelled as the box will not be created or has been removed from the conveyor.*handlingunit Schema should change based on the transcode value. For NEW and CHANGE transcodes, handlingunit_new_change' schema should be used. For CANCEL transcode, 'handlingunit_cancel' schema should be used.
             sender: 
               type: string
+              maxLength: 18
               enum: [EWM_KER1]
               example: EWM_KER1
-              description: Indicates the system that is sending the information
+              description: Indicates the system that is sending the information. Constant Value will be sent - 'EWM_KER1'
             receiver: 
               type: string
+              maxLength: 18
               enum: [Vanderlande_KER1]
               example: Vanderlande_KER1
-              description: Indicates the system that is supposed to receive the information
+              description: Indicates the system that is supposed to receive the information. Canstat value will be sent - 'Vanderlande_KER1'
             dateTimeSent: 
               type: string
               format: date-time
-              example: 2021-12-20T14:48:58.214+01:00
-              description: Indicates when the interface was sent. The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” in example indicates timezone offset i.e. means one hour ahead of UTC (Coordinated Universal Time) in this example. https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+              example: 2002-05-30T09:30:10Z
+              description: Message creation time in UTC. The format is YYYY-MM-DDThh:mm:ssZ. 
        
     handlingunit_new_change: 
       type: object
@@ -114,19 +124,14 @@ components:
         - dispatchDate
         - shipToCountry
         - routeCode
-        - carrier
-        - serviceType
-        - Pack-SizeBoxOfBoxes
-        - totalBoxWeight
-        - orderLines
+        - carrier       
+        - PackSizeBoxOfBoxes      
+        - delivery
       properties: 
         HUId:         
-          oneOf:
-            - type: string
-            - type: integer
-          maxLength: 18
-          maximum: 999999999999999999
-          example: 700001057835
+          type: string
+          maxLength: 20          
+          example: '700001057835'
           description: Handling Unit number. This is similar to the number of the box (18-digits) and will also be reflected in the HU-barcode in SSCC-format
         VAS: 
           type: object
@@ -142,25 +147,28 @@ components:
               example: ["LLI", "DFU"]
           description: This section indicates the type of value added service(s) that is/are needed. In the interface, there can be multiple activities within the <VAS>-section.
         pickVerification: 
-          type: boolean
-          description: Indicates whether the box has to go to the pick verification
+          type: string
+          enum:
+            - true
+            - false
+          description: Indicates whether the box has to go to the pick verification. Possible values are true or false.
         packLane: 
           type: string
           minLength: 1
           maxLength: 4
           example: MHU
-          description: The packline field indicates the type of packing needed for the box. There can be only 1 type of packing in this field
+          description: The packline field indicates the type of packing needed for the box. There can be only 1 type of packing in this field. Route to MHU for Delivery Group / Complete delivery Indicator deliveries. MANUALPACK and MHU will be same conveyor area mapped under Vision.
         delivery: 
           type: string
           minLength: 1
           maxLength: 35
-          example: 4312500640
-          description: Delivery Number
+          example: '4312500640'
+          description: Outbound Delivery Number
         dispatchDate: 
           type: string
           format: date-time
-          example: 2021-12-20T14:48:58.214+01:00
-          description: TimesStamp when the delivery was released for the picking process (in EWM this will be the Latest Start Date &Time) The format is YYYY-MM-DDThh:mm:ss-hh:mm . The “+01:00” in example indicates timezone offset i.e. means one hour ahead of UTC (Coordinated Universal Time) in this example. https://help.sap.com/docs/business-network-for-supply-chain/cxml-solutions/date-and-time-format
+          example: 2002-05-30T09:30:10Z
+          description: TimesStamp in UTC when the delivery was released for the picking process (in EWM this will be the Latest Start Date &Time) 
         shipToCountry: 
           type: string
           minLength: 2
@@ -176,64 +184,175 @@ components:
         carrier: 
           type: string
           example: DHL parcel
-          description: The carrier that will be transporting the box
+          description: Carrier Partner in Delivery
         serviceType: 
           type: string
           example: Pre8
-          minLength: 1
+          minLength: 0
           maxLength: 10
-          description: The type of service that the carrier is requested to provide (for example delivery before 9am, deliver next day, delivery at the department etc.)
-        cutOff: 
+          description: The type of service that the carrier is requested to provide (for example delivery before 9am, deliver next day, delivery at the department etc.). Not required by Vanderlande as of now.
+        cutoffDate: 
           type: string
-          example: 2021-12-20T18:48:00
+          format: date-time
+          example: 2002-05-30T09:30:10Z
+          description: Indicates the time in UTC when the box has to be handed over to the carrier. The format is YYYY-MM-DDThh:mm:ssZ. 
         boxLength: 
-          type: number
-          example: 255
-        boxWidth: 
-          type: number
-          example: 234
-        boxHeight: 
-          type: number
-          example: 47
-        Pack-SizeBoxOfBoxes: 
           type: string
+          maxLength: 17
+          example: '255'
+          description: Inner length of the box (mm)
+        boxWidth: 
+          type: string
+          maxLength: 17
+          example: '234'
+          description: Inner width of the box (mm)
+        boxHeight: 
+          type: string
+          maxLength: 17
+          example: '47'
+          description: Inner height of the box (mm)
+        PackSizeBoxOfBoxes: 
+          type: string
+          maxLength: 20
           example: 1 of 1
+          description: Indicates the number of the box within the delivery
         totalBoxWeight: 
-          type: number
-          example: 3000
+          type: string
+          maxLength: 40
+          example: '8.99'
+          description: Estimated total weight of the box and the products (g)
         orderLines: 
           type: array
+          minItems: 1
+          maxItems: 999
           items: 
             type: object
+            required:
+              - pickArea
             properties: 
               pickArea: 
                 type: string
+                minLength: 1
+                maxLength: 4
                 example: P03
+                description: Order Lines-Pick Area where picking is to be done. In EWM, pick area is the activity area for the open lower level WOs . 
               numberOfLines: 
-                type: number
-                example: 3
+                type: string
+                example: '3'
+                description: Order Lines - Number of Lines. In EWM, count of all warehouse tasks in the open lower level WOS 
               quantityOrdered: 
-                type: number
-                example: 6
+                type: string
+                example: '6'
+                description: Order Lines- Quantity to be picked. In EWM, count BUOM quantity of warehouse tasks in the open lower level WOS 
 
     handlingunit_cancel: 
       type: object             
       required:
         - HUId
       properties: 
-        HUId: 
-          type: number
-          example: 700001057835
+        HUId:         
+          type: string
+          maxLength: 20          
+          example: '700001057835'
+          description: Handling Unit number. This is similar to the number of the box (18-digits) and will also be reflected in the HU-barcode in SSCC-format
+
+    HUMasterMessageResponse:
+      type: object
+      properties:
+        HUMasterMessageResponse:
+          type: object
+          properties:
+            messageHeader:              
+              $ref: '#/components/schemas/responseMessageHeader'
+            responseMessage:
+                $ref: '#/components/schemas/responseMessage' 
+
+    responseMessageHeader: 
+          type: object
+          required:
+            - msgId
+            - msgType
+            - transCode
+            - sender
+            - receiver
+            - dateTimeReceived
+          properties: 
+            msgId: 
+              type: number
+              minimum: 1
+              maximum: 99999999999999999999
+              example: 27651234
+              description: Unique number of the message that was sent to Vanderlande. 
+            msgType: 
+              type: string
+              minLength: 1
+              maxLength: 20
+              enum: [HUMaster]
+              example: HUMaster
+              description: Describes the type of interface (always the same for Vanderlande)
+            transCode: 
+              type: string
+              enum:
+                - NEW
+                - CHANGE
+                - CANCEL
+              example: NEW
+              description: Send back the same transcode that was sent to Vanderlande
+            sender: 
+              type: string
+              enum: [Vanderlande_KER1]
+              example: Vanderlande_KER1
+              description: Indicates the system that is sending the information
+            receiver: 
+              type: string
+              enum: [EWM_KER1]
+              example: EWM_KER1
+              description: Indicates the system that is supposed to receive the information
+            dateTimeReceived: 
+              type: string
+              format: date-time
+              example: 2002-05-30T09:30:10Z
+              description: Indicates when the message was recieved by Vanderlande in UTC. The format is YYYY-MM-DDThh:mm:ssZ. 
+
+        
+    responseMessage:
+      type: object
+      properties:
+        responseMessage:
+          type: object
+          properties:
+            message:
+              type: string
+              maxLength: 100
+              description: response message. Mentions success or any validation failure reason along with the field name e.g. Error- Validation failed- dateTimeSent
+              example: Success - Accepted or Error- Validation failed- dateTimeSent, PackSizeBoxOfBoxes
+
   securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
     api_key:
       type: apiKey
       name: api_key
       in: header
+
+    BasicAuth:
+      type: http
+      scheme: basic
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations      
