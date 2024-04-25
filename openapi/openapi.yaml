@@ -149,9 +149,10 @@ components:
         pickVerification: 
           type: string
           enum:
-            - true
-            - false
+            - 'true'
+            - 'false'
           description: Indicates whether the box has to go to the pick verification. Possible values are true or false.
+          example: 'true'
         packLane: 
           type: string
           minLength: 1
